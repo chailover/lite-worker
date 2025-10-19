@@ -1,14 +1,33 @@
-const createWorkerTemplate = (
-  funcString: string,
-) => `self.onmessage = async (e) => {
-  const execFunc = ${funcString}
- 
-  const result = await execFunc(...e.data);
-  postMessage(result);
-};
+const createWorkerTemplate = (funcString: string) => `
+const toPlainError = (err) => ({
+  name: err && err.name ? err.name : 'Error',
+  message: err && err.message ? err.message : String(err),
+  stack: err && err.stack ? err.stack : undefined
+});
+
+self.addEventListener('message', async (e) => {
+ const execFunc = ${funcString};
+
+  try {
+    const result = await execFunc(...e.data);
+    postMessage({ ok: true, value: result });
+  } catch (err) {
+    postMessage({ ok: false, error: toPlainError(err) });
+  }
+});
+self.addEventListener('unhandledrejection', (e) => {
+  e.preventDefault();
+  postMessage({ ok: false, error: toPlainError(e.reason) });
+});
+self.addEventListener('error', (e) => {
+  e.preventDefault();
+  const err = e.error || { name: 'ErrorEvent', message: e.message };
+  postMessage({ ok: false, error: toPlainError(err) });
+});
 `;
 
 type WorkerFunction = (...args: unknown[]) => unknown;
+type WorkerMessage = { ok: boolean; value?: unknown; error?: Error };
 
 export const createWorker = (fn: WorkerFunction) => {
   const toString = fn.toString();
@@ -19,11 +38,21 @@ export const createWorker = (fn: WorkerFunction) => {
   const myWorker = new Worker(blobURL);
 
   const returnFunction = async (...args: unknown[]) => {
-    myWorker.postMessage([...args]);
     return new Promise((resolve, reject) => {
-      myWorker.onmessage = (e) => {
-        resolve(e.data);
+      myWorker.onmessage = (e: MessageEvent<WorkerMessage>) => {
+        if (e?.data && e?.data?.ok) {
+          resolve(e.data.value);
+        }
+        if (e?.data && e?.data?.error) {
+          const { error } = e.data;
+          const err = new Error(error?.message || 'Worker error');
+          if (error?.name) err.name = error.name;
+          if (error?.stack) err.stack = error.stack;
+          reject(err);
+        }
+        reject(new Error('Worker error'));
       };
+      myWorker.postMessage([...args]);
     });
   };
 
