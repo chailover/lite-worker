@@ -28,6 +28,7 @@ export default tseslint.config(
       'no-debugger': 'error',
       '@typescript-eslint/consistent-type-imports': ['warn', { prefer: 'type-imports' }],
       '@typescript-eslint/no-unused-vars': ['warn'],
+      '@typescript-eslint/no-explicit-any': ['warn'],
     },
   },
   eslintConfigPrettier,

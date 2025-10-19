@@ -2,8 +2,24 @@
   "name": "lite-worker",
   "version": "1.0.0",
   "description": "Simple library for web workers",
-  "license": "MIT",
   "type": "module",
+  "license": "MIT",
+  "homepage": "https://github.com/chailover/lite-worker",
+  "bugs": {
+    "url": "https://github.com/chailover/lite-worker/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chailover/lite-worker.git"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": ["dist/"],
   "scripts": {
     "build": "tsdown",
     "lint": "eslint .",
