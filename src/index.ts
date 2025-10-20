@@ -35,7 +35,7 @@ export const createWorker = (fn: WorkerFunction) => {
   const blobURL = URL.createObjectURL(blob);
   const myWorker = new Worker(blobURL);
 
-  const returnFunction = async (...args: unknown[]) => {
+  const workFunction = async (...args: unknown[]) => {
     return new Promise((resolve, reject) => {
       myWorker.onmessage = (e: MessageEvent<WorkerMessage>) => {
         if (e?.data && e?.data?.ok) {
@@ -65,5 +65,12 @@ export const createWorker = (fn: WorkerFunction) => {
     });
   };
 
-  return returnFunction;
+  const terminate = () => {
+    myWorker.onmessage = null;
+    myWorker.onerror = null;
+    myWorker.terminate();
+    URL.revokeObjectURL(blobURL);
+  };
+
+  return { execute: workFunction, terminate };
 };
