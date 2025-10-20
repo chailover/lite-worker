@@ -34,6 +34,7 @@ export const createWorker = (fn: WorkerFunction) => {
   const blob = new Blob([workerTemplate], { type: 'text/javascript' });
   const blobURL = URL.createObjectURL(blob);
   const myWorker = new Worker(blobURL);
+  let isTerminated = false;
 
   const workFunction = async (...args: unknown[]) => {
     return new Promise((resolve, reject) => {
@@ -61,11 +62,15 @@ export const createWorker = (fn: WorkerFunction) => {
         }
         reject(err);
       };
+      if (isTerminated) {
+        return reject(new Error('Worker is terminated'));
+      }
       myWorker.postMessage([...args]);
     });
   };
 
   const terminate = () => {
+    isTerminated = true;
     myWorker.onmessage = null;
     myWorker.onerror = null;
     myWorker.terminate();
