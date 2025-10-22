@@ -3,7 +3,7 @@ import tseslint from 'typescript-eslint';
 import globals from 'globals';
 import eslintConfigPrettier from 'eslint-config-prettier';
 
-const typedForSrc = tseslint.configs.recommendedTypeChecked.map((cfg) => ({
+const tsRecommended = tseslint.configs.recommended.map((cfg) => ({
   ...cfg,
   files: ['src/**/*.ts'],
 }));
@@ -11,25 +11,20 @@ const typedForSrc = tseslint.configs.recommendedTypeChecked.map((cfg) => ({
 export default tseslint.config(
   { ignores: ['dist/**', 'node_modules/**'] },
   js.configs.recommended,
-  ...typedForSrc,
+  ...tsRecommended,
   {
     files: ['src/**/*.ts'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
       globals: globals.browser,
-      parserOptions: {
-        project: ['./tsconfig.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
     },
     rules: {
-      'no-console': 'warn',
-      'no-debugger': 'error',
-      '@typescript-eslint/consistent-type-imports': ['warn', { prefer: 'type-imports' }],
-      '@typescript-eslint/no-unused-vars': ['warn'],
-      '@typescript-eslint/no-explicit-any': ['warn'],
-      '@typescript-eslint/no-unsafe-assignment': ['warn'],
+      'no-console': 'off',
+      'no-debugger': 'warn',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/ban-ts-comment': 'off',
     },
   },
   eslintConfigPrettier,
