@@ -1,3 +1,5 @@
+import { type WorkerMessage, type WorkerFunc } from './types';
+
 const createWorkerTemplate = (funcString: string) => `
 const toPlainError = (err) => ({
   name: err && err.name ? err.name : 'Error',
@@ -24,10 +26,7 @@ self.addEventListener('error', (e) => {
 });
 `;
 
-type WorkerFunction = (...args: unknown[]) => unknown;
-type WorkerMessage = { ok: boolean; value?: unknown; error?: Error };
-
-export const createWorker = (fn: WorkerFunction) => {
+export const createWorker = <T extends unknown[], K>(fn: WorkerFunc<T, K>) => {
   const toString = fn.toString();
   const workerTemplate = createWorkerTemplate(toString);
 
@@ -36,7 +35,7 @@ export const createWorker = (fn: WorkerFunction) => {
   const myWorker = new Worker(blobURL);
   let isTerminated = false;
 
-  const workFunction = async (...args: unknown[]) => {
+  const execute = async <T>(...args: unknown[]): Promise<T> => {
     return new Promise((resolve, reject) => {
       myWorker.onmessage = (e: MessageEvent<WorkerMessage>) => {
         if (e?.data && e?.data?.ok) {
@@ -60,7 +59,7 @@ export const createWorker = (fn: WorkerFunction) => {
         } else {
           err = new Error('Worker error');
         }
-        reject(err);
+        return reject(err);
       };
       if (isTerminated) {
         return reject(new Error('Worker is terminated'));
@@ -77,5 +76,5 @@ export const createWorker = (fn: WorkerFunction) => {
     URL.revokeObjectURL(blobURL);
   };
 
-  return { execute: workFunction, terminate };
+  return { execute, terminate };
 };
