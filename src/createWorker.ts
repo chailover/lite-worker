@@ -31,12 +31,16 @@ self.addEventListener('error', (e) => {
 });
 `;
 
-export const createWorker = (fn: any) => {
+export const createWorker = (fn: any, options: WorkerOptions) => {
+  const workerOptions: WorkerOptions = {
+    type: 'module',
+    ...options
+  }
   const toString = fn.toString();
   const workerTemplate = createWorkerTemplate(toString);
   const blob = new Blob([workerTemplate], { type: 'text/javascript' });
   const blobURL = URL.createObjectURL(blob);
-  const myWorker = new Worker(blobURL);
+  const myWorker = new Worker(blobURL, workerOptions);
 
   const promisesMap = new Map<number, any>();
   let isTerminated = false;
