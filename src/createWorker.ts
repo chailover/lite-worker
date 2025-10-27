@@ -32,6 +32,9 @@ self.addEventListener('error', (e) => {
 `;
 
 export const createWorker = (fn: any, options: WorkerOptions) => {
+  if (!globalThis.Worker) {
+    throw new Error('Web Worker is not supported');
+  }
   const workerOptions: WorkerOptions = {
     type: 'module',
     ...options

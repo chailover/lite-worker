@@ -1,6 +1,9 @@
 import { type WorkerMessage } from './types';
 
 export const createWorkerFromFile = (generateWorker: () => Worker) => {
+  if (!globalThis.Worker) {
+    throw new Error('Web Worker is not supported');
+  }
   const myWorker = generateWorker();
 
   const promisesMap = new Map<number, any>();
