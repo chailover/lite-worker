@@ -2,45 +2,71 @@ import { type WorkerMessage } from './types';
 
 export const createWorkerFromFile = (generateWorker: () => Worker) => {
   const myWorker = generateWorker();
-  let isTerminated = false;
 
-  const execute = async <T>(...args: unknown[]): Promise<T> => {
-    return new Promise((resolve, reject) => {
-      myWorker.onmessage = (e: MessageEvent<WorkerMessage>) => {
-        if (e?.data && e?.data?.ok) {
-          return resolve(e.data.value);
-        }
-        if (e?.data && e?.data?.error) {
-          const { error } = e.data;
-          const err = new Error(error?.message || 'Worker error');
-          if (error?.name) err.name = error.name;
-          if (error?.stack) err.stack = error.stack;
-          return reject(err);
-        }
-        return reject(new Error('Worker error'));
-      };
-      myWorker.onerror = (e: any) => {
-        let err: Error;
-        if (e.error) {
-          err = e.error;
-        } else if (e.message) {
-          err = new Error(e.message);
-        } else {
-          err = new Error('Worker error');
-        }
-        return reject(err);
-      };
-      if (isTerminated) {
-        return reject(new Error('Worker is terminated'));
+  const promisesMap = new Map<number, any>();
+  let isTerminated = false;
+  let id = 1;
+
+  const handleMessage = (e: MessageEvent) => {
+    const data = e.data;
+    if (data && typeof data.id === 'number') {
+      const currentPromise = promisesMap.get(data.id);
+      if (!currentPromise) {
+        return;
       }
-      myWorker.postMessage([...args]);
+      promisesMap.delete(data.id);
+      if (data.ok) {
+        currentPromise.resolve(data.value);
+      } else {
+        const errObj = data.error;
+        const err = new Error(errObj?.message || 'Worker error');
+        if (errObj?.name) err.name = errObj.name;
+        if (errObj?.stack) err.stack = errObj.stack;
+        currentPromise.reject(err);
+      }
+      return;
+    }
+    if (data && data.ok === false && data.error) {
+      const errObj = data.error;
+      const err = new Error(errObj?.message || 'Worker error');
+      if (errObj?.name) err.name = errObj.name;
+      if (errObj?.stack) err.stack = errObj.stack;
+      promisesMap.forEach((promise) => promise.reject(err));
+      promisesMap.clear();
+    }
+  };
+
+  const handleError = (e: ErrorEvent | any) => {
+    const err = e.error ? e.error : new Error(e.message || 'Worker error');
+    promisesMap.forEach((promise) => promise.reject(err));
+    promisesMap.clear();
+  };
+
+  myWorker.addEventListener('message', handleMessage);
+  myWorker.addEventListener('error', handleError);
+
+  const execute = (...args: any): Promise<any> => {
+    if (isTerminated) {
+      return Promise.reject(new Error('Worker is terminated'));
+    }
+    const nextId = id++;
+    return new Promise((resolve, reject) => {
+      promisesMap.set(nextId, { resolve, reject });
+      try {
+        myWorker.postMessage({ id: nextId, args });
+      } catch (err) {
+        promisesMap.delete(nextId);
+        reject(err);
+      }
     });
   };
 
   const terminate = () => {
     isTerminated = true;
-    myWorker.onmessage = null;
-    myWorker.onerror = null;
+    myWorker.removeEventListener('message', handleMessage);
+    myWorker.removeEventListener('error', handleError);
+    promisesMap.forEach((promise) => promise.reject(new Error('Worker was terminated')));
+    promisesMap.clear();
     myWorker.terminate();
   };
 

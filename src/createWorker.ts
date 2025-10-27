@@ -26,7 +26,7 @@ self.addEventListener('unhandledrejection', (e) => {
 });
 self.addEventListener('error', (e) => {
   e.preventDefault();
-  const err = e.error || { name: 'ErrorEvent', message: e.message };
+  const err = e.error || { name: 'Error', message: e.message };
   return self.postMessage({ ok: false, error: toPlainError(err) });
 });
 `;
