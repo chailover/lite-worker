@@ -1,17 +1,18 @@
 import { type WorkerFunc } from './types';
 
-export function expose<T extends unknown[], K>(
-  workerFunc: WorkerFunc<T, K>
-) {
+export function expose<T extends unknown[], K>(workerFunc: WorkerFunc<T, K>) {
   const toPlainError = (err: any) => ({
     name: err && err.name ? err.name : 'Error',
     message: err && err.message ? err.message : String(err),
-    stack: err && err.stack ? err.stack : undefined
+    stack: err && err.stack ? err.stack : undefined,
   });
   self.addEventListener('message', async (e: MessageEvent) => {
     const data = e.data;
     if (!data || typeof data.id !== 'number') {
-      return self.postMessage({ ok: false, error: { name: 'Error', message: 'Worker error' } });
+      return self.postMessage({
+        ok: false,
+        error: { name: 'Error', message: 'Worker error' },
+      });
     }
     const { id, args } = data;
     try {

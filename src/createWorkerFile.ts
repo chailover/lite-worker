@@ -68,7 +68,9 @@ export const createWorkerFromFile = (generateWorker: () => Worker) => {
     isTerminated = true;
     myWorker.removeEventListener('message', handleMessage);
     myWorker.removeEventListener('error', handleError);
-    promisesMap.forEach((promise) => promise.reject(new Error('Worker was terminated')));
+    promisesMap.forEach((promise) =>
+      promise.reject(new Error('Worker was terminated')),
+    );
     promisesMap.clear();
     myWorker.terminate();
   };

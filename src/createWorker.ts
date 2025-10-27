@@ -37,8 +37,8 @@ export const createWorker = (fn: any, options: WorkerOptions) => {
   }
   const workerOptions: WorkerOptions = {
     type: 'module',
-    ...options
-  }
+    ...options,
+  };
   const toString = fn.toString();
   const workerTemplate = createWorkerTemplate(toString);
   const blob = new Blob([workerTemplate], { type: 'text/javascript' });
@@ -107,7 +107,9 @@ export const createWorker = (fn: any, options: WorkerOptions) => {
     isTerminated = true;
     myWorker.removeEventListener('message', handleMessage);
     myWorker.removeEventListener('error', handleError);
-    promisesMap.forEach((promise) => promise.reject(new Error('Worker was terminated')));
+    promisesMap.forEach((promise) =>
+      promise.reject(new Error('Worker was terminated')),
+    );
     promisesMap.clear();
     myWorker.terminate();
     URL.revokeObjectURL(blobURL);
