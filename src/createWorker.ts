@@ -1,4 +1,4 @@
-import { WorkerMessage, WorkerFunc,  MappedPromise } from './types';
+import { WorkerMessage, WorkerFunc, MappedPromise } from './types';
 
 const createWorkerTemplate = (funcString: string) => `
 const toPlainError = (err) => ({
@@ -30,7 +30,6 @@ self.addEventListener('error', (e) => {
   return self.postMessage({ ok: false, error: toPlainError(err) });
 });
 `;
-
 
 export const createWorker = <T extends unknown[], K>(
   fn: WorkerFunc<T, K>,
@@ -91,9 +90,7 @@ export const createWorker = <T extends unknown[], K>(
   myWorker.addEventListener('message', handleMessage);
   myWorker.addEventListener('error', handleError);
 
-  const execute = <R = Awaited<K>>(
-    ...args: T
-  ): Promise<R> => {
+  const execute = <R = Awaited<K>>(...args: T): Promise<R> => {
     if (isTerminated) {
       return Promise.reject(new Error('Worker is terminated'));
     }
