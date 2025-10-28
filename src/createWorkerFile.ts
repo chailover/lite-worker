@@ -1,16 +1,16 @@
-import { type WorkerMessage } from './types';
+import { MappedPromise, WorkerMessage } from './types';
 
-export const createWorkerFromFile = (generateWorker: () => Worker) => {
+export const createWorkerFromFile = <T = any>(generateWorker: () => Worker) => {
   if (!globalThis.Worker) {
     throw new Error('Web Worker is not supported');
   }
   const myWorker = generateWorker();
 
-  const promisesMap = new Map<number, any>();
+  const promisesMap = new Map<number, MappedPromise>();
   let isTerminated = false;
   let id = 1;
 
-  const handleMessage = (e: MessageEvent) => {
+  const handleMessage = (e: MessageEvent<WorkerMessage>) => {
     const data = e.data;
     if (data && typeof data.id === 'number') {
       const currentPromise = promisesMap.get(data.id);
@@ -48,7 +48,7 @@ export const createWorkerFromFile = (generateWorker: () => Worker) => {
   myWorker.addEventListener('message', handleMessage);
   myWorker.addEventListener('error', handleError);
 
-  const execute = (...args: any): Promise<any> => {
+  const execute = <K = T>(...args: unknown[]): Promise<K> => {
     if (isTerminated) {
       return Promise.reject(new Error('Worker is terminated'));
     }
