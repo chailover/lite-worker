@@ -1,4 +1,4 @@
-import { type WorkerMessage, type WorkerFunc } from './types';
+import { WorkerMessage, WorkerFunc,  MappedPromise } from './types';
 
 const createWorkerTemplate = (funcString: string) => `
 const toPlainError = (err) => ({
@@ -31,7 +31,11 @@ self.addEventListener('error', (e) => {
 });
 `;
 
-export const createWorker = (fn: any, options: WorkerOptions) => {
+
+export const createWorker = <T extends unknown[], K>(
+  fn: WorkerFunc<T, K>,
+  options?: WorkerOptions,
+) => {
   if (!globalThis.Worker) {
     throw new Error('Web Worker is not supported');
   }
@@ -45,11 +49,11 @@ export const createWorker = (fn: any, options: WorkerOptions) => {
   const blobURL = URL.createObjectURL(blob);
   const myWorker = new Worker(blobURL, workerOptions);
 
-  const promisesMap = new Map<number, any>();
+  const promisesMap = new Map<number, MappedPromise>();
   let isTerminated = false;
   let id = 1;
 
-  const handleMessage = (e: MessageEvent) => {
+  const handleMessage = (e: MessageEvent<WorkerMessage>) => {
     const data = e.data;
     if (data && typeof data.id === 'number') {
       const currentPromise = promisesMap.get(data.id);
@@ -87,7 +91,9 @@ export const createWorker = (fn: any, options: WorkerOptions) => {
   myWorker.addEventListener('message', handleMessage);
   myWorker.addEventListener('error', handleError);
 
-  const execute = (...args: any) => {
+  const execute = <R = Awaited<K>>(
+    ...args: T
+  ): Promise<R> => {
     if (isTerminated) {
       return Promise.reject(new Error('Worker is terminated'));
     }
