@@ -21,7 +21,7 @@ Use createWorker when you don’t need imports or captured variables.
 ```js
 import { createWorker } from 'lite-worker';
 
-const add = async (a, b) => a + b;
+const add = (a, b) => a + b;
 
 const worker = createWorker(add);
 
