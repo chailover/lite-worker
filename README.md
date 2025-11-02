@@ -18,52 +18,39 @@ npm install --save lite-worker
 
 Use createWorker when you don’t need imports or captured variables.
 
-```ts
+```js
 import { createWorker } from 'lite-worker';
 
-// Must be self-contained (no external imports or captured variables)
-const add = async (a: number, b: number) => a + b;
+const add = async (a, b) => a + b;
 
 const worker = createWorker(add);
 
 const result = await worker.execute(1, 2); // 3
-console.log(result);
-
-worker.terminate(); // cleanup when you're done
 ```
 
 **createWorkerFromFile**:
 
 Use createWorkerFromFile when you need a full worker module with imports, shared helpers, or libraries.
 
-`worker.ts`
-```ts
+`worker.js`
+```js
 import { expose } from 'lite-worker';
 import { v4 } from 'uuid'; //external dependency
 
-type Item = { name: string };
-type ItemWithId = Item & { id: string };
-
-function addIds(items: Item[]): ItemWithId[] {
+function addIds(items) {
   return items.map((item) => ({ ...item, id: v4() }));
 }
 expose(addIds);
 ```
-`main.ts`
-```ts
+`main.js`
+```js
 import { createWorkerFromFile } from 'lite-worker';
 
-type Item = { name: string };
-type ItemWithId = Item & { id: string };
+const items = [{ name: 'Alpha' }, { name: 'Beta' }, { name: 'Gamma' }];
 
-const items: Item[] = [{ name: 'Alpha' }, { name: 'Beta' }, { name: 'Gamma' }];
-
-const worker = createWorkerFromFile<ItemWithId[]>(
+const worker = createWorkerFromFile(
   () => new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' })
 );
 
-const result = await worker.execute(items);
-console.log(result); // [{ name: 'Alpha', id: '...' }, ...]
-
-worker.terminate();
+const result = await worker.execute(items); // [{ name: 'Alpha', id: '...' }, ...]
 ```
