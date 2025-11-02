@@ -37,9 +37,9 @@ Use createWorkerFromFile when you need a full worker module with imports, shared
 import { expose } from 'lite-worker';
 import { v4 } from 'uuid'; //external dependency
 
-function addIds(items) {
+const addIds = (items) => {
   return items.map((item) => ({ ...item, id: v4() }));
-}
+};
 expose(addIds);
 ```
 `main.js`
