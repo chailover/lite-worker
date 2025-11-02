@@ -18,7 +18,7 @@ npm install --save lite-worker
 
 Use createWorker when you don’t need imports or captured variables.
 
-```js
+```ts
 import { createWorker } from 'lite-worker';
 
 // Must be self-contained (no external imports or captured variables)
@@ -36,10 +36,10 @@ worker.terminate(); // cleanup when you're done
 
 Use createWorkerFromFile when you need a full worker module with imports, shared helpers, or libraries.
 
-```js
-// worker.ts
+`worker.ts`
+```ts
 import { expose } from 'lite-worker';
-import { v4 } from 'uuid';
+import { v4 } from 'uuid'; //external dependency
 
 type Item = { name: string };
 type ItemWithId = Item & { id: string };
@@ -49,9 +49,8 @@ function addIds(items: Item[]): ItemWithId[] {
 }
 expose(addIds);
 ```
-
-```js
-// main thread
+`main.ts`
+```ts
 import { createWorkerFromFile } from 'lite-worker';
 
 type Item = { name: string };
