@@ -49,7 +49,7 @@ import { createWorkerFromFile } from 'lite-worker';
 const items = [{ name: 'Alpha' }, { name: 'Beta' }, { name: 'Gamma' }];
 
 const worker = createWorkerFromFile(
-  () => new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' })
+  () => new Worker(new URL('./worker.js', import.meta.url), { type: 'module' })
 );
 
 const result = await worker.execute(items); // [{ name: 'Alpha', id: '...' }, ...]
