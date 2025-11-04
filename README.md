@@ -1,5 +1,5 @@
 # lite-worker
-> Lightweight, minimal library for Web Workers. Run heavy or isolated tasks off the main thread with a simple execute/terminate API.
+> Lightweight, minimalist library for Web Workers. Run heavy or isolated tasks off the main thread with a simple execute/terminate API.
 
 - **Simple approach**: Create a Web Worker from a plain function with `createWorker`, or from a dedicated file with `createWorkerFromFile`.
 - **TypeScript-ready**: Works great with both JS and TS. Built-in TypeScript typings for all exports.
