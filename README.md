@@ -1,10 +1,11 @@
 # lite-worker
 > Lightweight, minimal library for Web Workers. Run heavy or isolated tasks off the main thread with a simple execute/terminate API.
 
-- Two approaches: createWorker(function-based) or createWorkerFromFile(file-based)
-- Promise API: execute(...args) -> Promise, terminate() for cleanup
-- Robust errors & lifecycle: propagates name/message/stack, rejects on worker errors, cleans up listeners
-- Modern & minimal: ESM workers, bundler‑friendly (Vite/webpack), zero dependencies
+- **Simple approach**: Create a Web Worker from a plain function with `createWorker`, or from a dedicated file with `createWorkerFromFile`.
+- **TypeScript-ready**: Works great with both JS and TS. Built-in TypeScript typings for all exports.
+- **Promise API**: Call `execute()` and get a Promise back; use `terminate()` for cleanup. Worker errors reject the returned Promise on the main thread.
+- **Modern & minimal**: ESM‑only, zero dependencies, tree‑shakeable. Module workers by default. Supports all modern browsers.
+- **Bundler-friendly**: Works with modern bundlers including Vite, Webpack 5+, Rollup, Parcel, esbuild, and Turbopack/Rspack.
 
 ### Install
 
