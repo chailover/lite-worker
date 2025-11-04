@@ -5,7 +5,7 @@
 - **TypeScript-ready**: Works great with both JS and TS. Built-in TypeScript typings for all exports.
 - **Promise API**: Call `execute()` and get a Promise back; use `terminate()` for cleanup. Worker errors reject the returned Promise on the main thread.
 - **Modern & minimal**: ESM‑only, zero dependencies, tree‑shakeable. Module workers by default. Supports all modern browsers.
-- **Bundler-friendly**: Works with modern bundlers including Vite, Webpack 5+, Rollup, Parcel, esbuild, and Turbopack/Rspack.
+- **Bundler-friendly**: Works out of the box with modern bundlers including Vite, Webpack 5+, Rollup, Parcel, esbuild, and Turbopack/Rspack. No extra plugins or loaders
 
 ### Install
 
