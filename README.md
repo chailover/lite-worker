@@ -13,6 +13,9 @@
 npm install --save lite-worker
 ```
 
+### Docs
+Check out the [Docs](https://liteworker.dev) for more examples
+
 ### Usage
 
 **createWorker**:

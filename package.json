@@ -4,7 +4,7 @@
   "description": "Lightweight and minimal library for Web Workers",
   "type": "module",
   "license": "MIT",
-  "homepage": "https://github.com/chailover/lite-worker",
+  "homepage": "https://liteworker.dev",
   "keywords": [
     "worker",
     "web worker",
