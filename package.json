@@ -1,6 +1,6 @@
 {
   "name": "lite-worker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Lightweight and minimal library for Web Workers",
   "type": "module",
   "license": "MIT",
